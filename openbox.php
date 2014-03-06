@@ -38,6 +38,7 @@ class OpenboxGameServer {
 	public function movePlayer($clientID, $x, $y) {
 		foreach($this->players as $player) {
 			if($player->clientID == $clientID) {
+				$player->lastUpdated = $this->tick;
 				$player->entity->x = $x;
 				$player->entity->y = $y;
 			}
@@ -68,7 +69,7 @@ class OpenboxGameServer {
 		if(count($this->players) == $this->max_players) {
 			return $responsearray = array('action-successful' => false, 'msg' => "Server is full!");
 		}
-		$this->chat[] = $username . " joined the game";
+		$this->chat[] = $username . " joined the game\n";
 		echo($username . " joined the game");
 		$this->players[] = new player($username, $clientID, $version, 0, 0, $this->tick);
 		$chat = json_encode($this->chat);
@@ -78,7 +79,6 @@ class OpenboxGameServer {
 
 	function initialize() {
 		echo("Starting Openbox Game Server v".VERSION."...\n");
-		read_settings();
 		$app = function($request, $response) {
 		$response->writeHead(200, array('Content-Type' => 'text/plain'));
 		$requestarray = $request->getQuery();
@@ -97,7 +97,9 @@ class OpenboxGameServer {
 					$clientID = $requestarray['clientID'];
 					$x = $requestarray['x'];
 					$y = $requestarray['y'];
-					$responsearray = $this->movePlayer($clientID, $x, $y);
+					$this->movePlayer($clientID, $x, $y);
+					$responsearray = array('action-successful' => true);
+				break;
 				default:
 					$responsearray = array('error' => 'Invalid action or outdated server.');
 				break;
@@ -120,8 +122,8 @@ class OpenboxGameServer {
 		$self->tick++;
 		foreach($self->players as $player) {
 			$destroy = false;
-			if($player->lastUpdated >= $self->tick + 100) {
-				echo($player->username . " logged out due to timeout");
+			if($player->lastUpdated < $self->tick - 100) {
+				echo($player->username . " logged out due to timeout\n");
 				$self->chat[] = $player->username . " left the game";
 				$destroy = true;
 			}
