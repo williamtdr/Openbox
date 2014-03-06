@@ -115,23 +115,23 @@ class OpenboxGameServer {
 	$http->on('request', $app); 
 	echo "Game server running on ".$this->IP.":".$this->port."\n";
 	$socket->listen($this->port, $this->IP);
-	$timer = $loop->addPeriodicTimer(1, function ($timer) {
-		$ob_server->tick++;
-		foreach($ob_server->players as $player) {
+	$timer = $loop->addPeriodicTimer(0.1, function ($timer) {
+		$this->tick++;
+		foreach($this->players as $player) {
 			$destroy = false;
-			if($player->lastUpdated >= $ob_server->tick + 100) {
+			if($player->lastUpdated >= $this->tick + 100) {
 				echo($player->username . " logged out due to timeout");
-				$ob_server->chat[] = $player->username . " left the game";
+				$this->chat[] = $player->username . " left the game";
 				$destroy = true;
 			}
 			if($destroy) { // remove player from players array
 				$array = array();
-				foreach($ob_server->players as $player2) {	
+				foreach($this->players as $player2) {	
 					if($player2->clientID != $player->clientID) {
 						$array[] = $player2;
 					}
 				}
-				$ob_server->players = $array;
+				$this->players = $array;
 			}
 		}
 	});
