@@ -1,0 +1,29 @@
+<?php
+/*
+Openbox Game Server
+-------------------
+By williamtdr // William Teder
+*/
+
+class player {
+	public $username;
+	public $clientID;
+	public $version;
+	public $entity;
+	public $lastUpdated = microtime();	
+	
+	public function __construct($username, $clientID, $version, $x, $y) {
+		$this->entity = new entity($x, $y, 0);
+		$this->username = $username;
+		$this->clientID = $clientID;
+		$this->version = $version;
+	}
+
+	public function __destruct() {
+	}
+	
+	public function destroy() {
+		$this->__destruct();
+	}
+}
+?>
