@@ -50,7 +50,7 @@ class OpenboxGameServer {
 		foreach($this->players as $player) {
 			$posdata[] = array('username' => $player->username, 'x' => $player->entity->x, 'y' => $player->entity->y);
 		}
-		$data = json_encode($posdata);
+		$data = array('players' => $posdata);
 		return $data;
 	}
 
@@ -91,7 +91,8 @@ class OpenboxGameServer {
 					$responsearray = $this->validateJoin($username, $clientID, $version);						
 				break;
 				case "getPositions":
-					return $this->getPositions();
+					$value = $this->getPositions();
+					$responsearray = $value;
 				break;
 				case "updatePosition":
 					$clientID = $requestarray['clientID'];
